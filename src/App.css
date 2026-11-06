@@ -327,7 +327,7 @@ img { display: block; width: 100%; }
   .main-nav > a:not(.nav-cta)::after { display: none; }
   .main-nav > a:not(.nav-cta).is-active { padding-left: 8px; border-bottom-color: var(--gold); }
   .nav-cta { justify-content: space-between; margin-top: 12px; }
-  .hero { height: calc(100svh - 60px); min-height: 560px; }
+  .hero { height: min(680px, calc(100svh - 60px)); min-height: 520px; }
   .hero-content { min-height: 0; justify-content: center; padding-top: 0; padding-bottom: 80px; }
   .hero-image img { object-position: 57% center; }
   .hero-shade { background: linear-gradient(90deg, rgba(14,35,29,.83), rgba(19,40,33,.43)), linear-gradient(0deg, rgba(11,28,23,.5), transparent 35%); }
