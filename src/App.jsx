@@ -362,7 +362,14 @@ function App() {
   const closeMenu = () => setMenuOpen(false)
 
   return (
-    <div className={`site-shell${hasScrolled ? ' has-scrolled' : ''}`}>
+    <div
+      className={`site-shell${hasScrolled ? ' has-scrolled' : ''}`}
+      onClickCapture={(event) => {
+        if (event.target instanceof Element && event.target.closest('a[href^="#"]:not([href="#home"])')) {
+          setHasScrolled(true)
+        }
+      }}
+    >
       <header className="site-header">
         <div className="container header-inner">
           <a className="brand" href="#home" aria-label="Innovative School System home">
