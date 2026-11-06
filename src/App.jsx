@@ -288,7 +288,7 @@ function App() {
       setOutgoingSlide(null)
       setIsImageFading(false)
       setIsSlideChanging(false)
-    }, 1600)
+    }, 2500)
 
     return () => {
       window.cancelAnimationFrame(frame)
@@ -376,14 +376,10 @@ function App() {
 
     const timer = window.setInterval(() => {
       setActiveSlide((current) => (current + 1) % slides.length)
-    }, 6500)
+    }, 7000)
 
     return () => window.clearInterval(timer)
   }, [hasScrolled])
-
-  const changeSlide = (direction) => {
-    setActiveSlide((current) => (current + direction + slides.length) % slides.length)
-  }
 
   const closeMenu = () => setMenuOpen(false)
 
@@ -455,13 +451,12 @@ function App() {
                     className={index === activeSlide ? 'is-active' : ''}
                     aria-label={`Show slide ${index + 1}`}
                     aria-pressed={index === activeSlide}
-                    onClick={() => setActiveSlide(index)}
+                    onClick={() => {
+                      setHasScrolled(true)
+                      setActiveSlide(index)
+                    }}
                   />
                 ))}
-              </div>
-              <div className="hero-arrows">
-                <button type="button" aria-label="Previous slide" onClick={() => changeSlide(-1)}><ChevronLeft size={18} /></button>
-                <button type="button" aria-label="Next slide" onClick={() => changeSlide(1)}><ChevronRight size={18} /></button>
               </div>
               <span className="hero-caption">01 <span /> A little more possible, every day</span>
             </div>
