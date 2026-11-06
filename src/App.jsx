@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
   ArrowDown,
   ArrowRight,
@@ -180,7 +180,7 @@ const events = [
   },
 ]
 
-function SectionHeading({ eyebrow, title, copy, light = false, animateOnScroll = false }) {
+function SectionHeading({ eyebrow, title, copy, light = false, animateOnScroll = false, hasScrolled = false }) {
   const headingRef = useRef(null)
   const wasVisibleRef = useRef(false)
   const [isVisible, setIsVisible] = useState(
@@ -190,7 +190,7 @@ function SectionHeading({ eyebrow, title, copy, light = false, animateOnScroll =
   const [entryCount, setEntryCount] = useState(0)
 
   useEffect(() => {
-    if (!animateOnScroll) return undefined
+    if (!animateOnScroll || !hasScrolled) return undefined
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
 
@@ -206,14 +206,14 @@ function SectionHeading({ eyebrow, title, copy, light = false, animateOnScroll =
     if (headingRef.current) observer.observe(headingRef.current)
 
     return () => observer.disconnect()
-  }, [animateOnScroll])
+  }, [animateOnScroll, hasScrolled])
 
   return (
     <div
-      className={`section-heading${light ? ' section-heading--light' : ''}${animateOnScroll ? ` programs-heading${isVisible ? ' is-visible' : ''}` : ''}`}
+      className={`section-heading${light ? ' section-heading--light' : ''}${animateOnScroll ? ` programs-heading${hasScrolled ? ' programs-heading--armed' : ''}${isVisible ? ' is-visible' : ''}` : ''}`}
     >
       <span ref={animateOnScroll ? headingRef : undefined} className="eyebrow">{eyebrow}</span>
-      <h2>{animateOnScroll ? <TypewriterTitle key={entryCount} text={title} isVisible={isVisible} /> : title}</h2>
+      <h2>{animateOnScroll && hasScrolled && isVisible ? <TypewriterTitle key={entryCount} text={title} isVisible={isVisible} /> : title}</h2>
       {copy && <p>{copy}</p>}
     </div>
   )
@@ -265,6 +265,7 @@ function App() {
   const [marqueePaused, setMarqueePaused] = useState(false)
   const [activeNav, setActiveNav] = useState('home')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [hasScrolled, setHasScrolled] = useState(false)
   const slide = slides[activeSlide]
   const featurePageCount = Math.ceil(features.length / 3)
   const visibleFeatures = features.slice(activeFeaturePage * 3, activeFeaturePage * 3 + 3)
@@ -287,12 +288,30 @@ function App() {
   }, [])
 
   useEffect(() => {
+    const activateScrollMotion = () => setHasScrolled(true)
+    const onKeyDown = (event) => {
+      if (['ArrowDown', 'PageDown', ' ', 'End'].includes(event.key)) activateScrollMotion()
+    }
+
+    window.addEventListener('wheel', activateScrollMotion, { passive: true, once: true })
+    window.addEventListener('touchmove', activateScrollMotion, { passive: true, once: true })
+    window.addEventListener('keydown', onKeyDown)
+
+    return () => {
+      window.removeEventListener('wheel', activateScrollMotion)
+      window.removeEventListener('touchmove', activateScrollMotion)
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [])
+
+  useLayoutEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
     if (!('IntersectionObserver' in window)) return undefined
 
     const revealElements = document.querySelectorAll(
       '.intro-visual, .intro-photo-note, .intro-copy, .section-heading:not(.programs-heading), .program-card, .features-intro, .feature-item, .feature-controls, .vision-image, .vision-copy, .vision-item, .campus-card, .coaching-image, .coaching-content, .achievement-copy, .achievement-card, .event-card, .footer-grid > *',
     )
+    const initiallyVisible = []
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -306,13 +325,27 @@ function App() {
 
     revealElements.forEach((element) => {
       element.classList.add('scroll-reveal')
-      observer.observe(element)
+      const bounds = element.getBoundingClientRect()
+      if (bounds.top < window.innerHeight && bounds.bottom > 0) {
+        element.classList.add('is-visible', 'scroll-reveal--initial')
+        initiallyVisible.push(element)
+      } else {
+        observer.observe(element)
+      }
     })
 
-    return () => observer.disconnect()
+    const frame = window.requestAnimationFrame(() => {
+      initiallyVisible.forEach((element) => element.classList.remove('scroll-reveal--initial'))
+    })
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+      observer.disconnect()
+    }
   }, [])
 
   useEffect(() => {
+    if (!hasScrolled) return undefined
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
 
     const timer = window.setInterval(() => {
@@ -320,7 +353,7 @@ function App() {
     }, 5000)
 
     return () => window.clearInterval(timer)
-  }, [])
+  }, [hasScrolled])
 
   const changeSlide = (direction) => {
     setActiveSlide((current) => (current + direction + slides.length) % slides.length)
@@ -329,7 +362,7 @@ function App() {
   const closeMenu = () => setMenuOpen(false)
 
   return (
-    <div className="site-shell">
+    <div className={`site-shell${hasScrolled ? ' has-scrolled' : ''}`}>
       <header className="site-header">
         <div className="container header-inner">
           <a className="brand" href="#home" aria-label="Innovative School System home">
@@ -464,6 +497,7 @@ function App() {
               title="A good beginning. A bright next step."
               copy="A connected journey from those first curious questions to confident plans for the future."
               animateOnScroll
+              hasScrolled={hasScrolled}
             />
             <div className="program-grid">
               {programs.map((program, index) => (
@@ -490,6 +524,7 @@ function App() {
               eyebrow="Salient features"
               title="A little more of what makes Innovative special."
               copy="The spaces, people and opportunities that help every student feel ready to learn."
+              hasScrolled={hasScrolled}
             />
             <div
               className={`features-grid features-grid--${featureDirection}`}
@@ -575,6 +610,7 @@ function App() {
                 eyebrow="Come and say hello"
                 title="A welcoming place, close to home."
                 copy="Two neighbourhood campuses. One warm Innovative community."
+                hasScrolled={hasScrolled}
               />
               <a className="underlined-link section-side-link" href="#contact">Get directions <ArrowRight size={16} /></a>
             </div>
@@ -650,6 +686,7 @@ function App() {
                 eyebrow="Make a date of it"
                 title="Good things on the calendar."
                 copy="Open mornings, school celebrations and the little moments that bring us together."
+                hasScrolled={hasScrolled}
               />
               <a className="underlined-link section-side-link" href="#contact">All school news <ArrowRight size={16} /></a>
             </div>
