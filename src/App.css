@@ -308,6 +308,8 @@ img { display: block; width: 100%; }
 @media (max-width: 700px) {
   html { scroll-padding-top: 60px; }
   .container { width: calc(100% - 38px); }
+  .site-header { position: fixed; top: 0; right: 0; left: 0; }
+  main { padding-top: 60px; }
   .section-pad { padding: 64px 0; }
   .intro-section { padding-top: 32px; padding-bottom: 32px; }
   .programs-section { padding-block: 48px; }
