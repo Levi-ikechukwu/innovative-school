@@ -376,7 +376,7 @@ function App() {
 
     const timer = window.setInterval(() => {
       setActiveSlide((current) => (current + 1) % slides.length)
-    }, 7000)
+    }, 5000)
 
     return () => window.clearInterval(timer)
   }, [hasScrolled])
@@ -461,7 +461,6 @@ function App() {
               <span className="hero-caption">01 <span /> A little more possible, every day</span>
             </div>
           </div>
-          <a href="#about" className="scroll-cue" aria-label="Scroll to learn about Innovative School System"><ArrowDown size={17} /></a>
         </section>
 
         <section className={`values-marquee${marqueePaused ? ' is-paused' : ''}`} aria-label="Innovative School System values">
