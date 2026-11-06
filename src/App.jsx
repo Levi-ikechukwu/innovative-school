@@ -10,8 +10,6 @@ import {
   Clock3,
   MapPin,
   Menu,
-  Pause,
-  Play,
   Quote,
   Trophy,
   UsersRound,
@@ -266,7 +264,6 @@ function App() {
   const previousSlideRef = useRef(activeSlide)
   const [activeFeaturePage, setActiveFeaturePage] = useState(0)
   const [featureDirection, setFeatureDirection] = useState('next')
-  const [marqueePaused, setMarqueePaused] = useState(false)
   const [activeNav, setActiveNav] = useState('home')
   const [menuOpen, setMenuOpen] = useState(false)
   const [hasScrolled, setHasScrolled] = useState(false)
@@ -463,7 +460,7 @@ function App() {
           </div>
         </section>
 
-        <section className={`values-marquee${marqueePaused ? ' is-paused' : ''}`} aria-label="Innovative School System values">
+        <section className="values-marquee" aria-label="Innovative School System values">
           <p className="sr-only">Our values: {schoolValues.join(', ')}.</p>
           <div className="values-marquee-track" aria-hidden="true">
             {[0, 1].map((copy) => (
@@ -476,14 +473,7 @@ function App() {
               </div>
             ))}
           </div>
-          <button
-            type="button"
-            className="values-marquee-toggle"
-            aria-label={marqueePaused ? 'Play school values marquee' : 'Pause school values marquee'}
-            onClick={() => setMarqueePaused((paused) => !paused)}
-          >
-            {marqueePaused ? <Play size={14} /> : <Pause size={14} />}
-          </button>
+          <span className="values-marquee-label" aria-hidden="true"><i /> Our values</span>
         </section>
 
         <section className="intro-section section-pad" id="about">
@@ -609,32 +599,6 @@ function App() {
           </div>
         </section>
 
-        <section className="vision-section section-pad" id="vision">
-          <div className="container vision-grid">
-            <div className="vision-image">
-              <img
-                src="https://images.unsplash.com/photo-1529390079861-591de354faf5?auto=format&fit=crop&w=1100&q=85"
-                alt="Students looking ahead together outside"
-                loading="lazy"
-              />
-              <span className="vision-image-caption">Small steps. Big possibilities.</span>
-            </div>
-            <div className="vision-copy">
-              <span className="eyebrow">What guides us</span>
-              <h2>Rooted in kindness.<br /><em>Reaching for more.</em></h2>
-              <div className="vision-item">
-                <span className="vision-symbol">01</span>
-                <div><h3>Our vision</h3><p>A future where every young person has the confidence, character and curiosity to make a positive difference.</p></div>
-              </div>
-              <div className="vision-item">
-                <span className="vision-symbol">02</span>
-                <div><h3>Our mission</h3><p>To make excellent, inclusive education personal — nurturing each student’s strengths while opening doors to new possibilities.</p></div>
-              </div>
-              <a className="underlined-link" href="#contact">Meet the Innovative community <ArrowRight size={16} /></a>
-            </div>
-          </div>
-        </section>
-
         <section className="campus-section section-pad" id="campuses">
           <div className="container">
             <div className="section-row">
@@ -659,6 +623,32 @@ function App() {
                   </div>
                 </article>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="vision-section section-pad" id="vision">
+          <div className="container vision-grid">
+            <div className="vision-image">
+              <img
+                src="https://images.unsplash.com/photo-1529390079861-591de354faf5?auto=format&fit=crop&w=1100&q=85"
+                alt="Students looking ahead together outside"
+                loading="lazy"
+              />
+              <span className="vision-image-caption">Small steps. Big possibilities.</span>
+            </div>
+            <div className="vision-copy">
+              <span className="eyebrow">What guides us</span>
+              <h2>Rooted in kindness.<br /><em>Reaching for more.</em></h2>
+              <div className="vision-item">
+                <span className="vision-symbol">01</span>
+                <div><h3>Our vision</h3><p>A future where every young person has the confidence, character and curiosity to make a positive difference.</p></div>
+              </div>
+              <div className="vision-item">
+                <span className="vision-symbol">02</span>
+                <div><h3>Our mission</h3><p>To make excellent, inclusive education personal — nurturing each student’s strengths while opening doors to new possibilities.</p></div>
+              </div>
+              <a className="underlined-link" href="#contact">Meet the Innovative community <ArrowRight size={16} /></a>
             </div>
           </div>
         </section>
@@ -718,6 +708,8 @@ function App() {
                 eyebrow="Make a date of it"
                 title="Good things on the calendar."
                 copy="Open mornings, school celebrations and the little moments that bring us together."
+                animateOnScroll
+                hasScrolled={hasScrolled}
                 hasScrolled={hasScrolled}
               />
               <a className="underlined-link section-side-link" href="#contact">All school news <ArrowRight size={16} /></a>
