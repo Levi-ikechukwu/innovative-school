@@ -374,7 +374,6 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (!hasScrolled) return undefined
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
 
     const timer = window.setInterval(() => {
@@ -382,7 +381,7 @@ function App() {
     }, 5000)
 
     return () => window.clearInterval(timer)
-  }, [hasScrolled])
+  }, [])
 
   const closeMenu = () => setMenuOpen(false)
 
