@@ -267,9 +267,15 @@ function App() {
   const [activeNav, setActiveNav] = useState('home')
   const [menuOpen, setMenuOpen] = useState(false)
   const [hasScrolled, setHasScrolled] = useState(false)
+  const [hasLoaded, setHasLoaded] = useState(false)
   const slide = slides[activeSlide]
   const featurePageCount = Math.ceil(features.length / 3)
   const visibleFeatures = features.slice(activeFeaturePage * 3, activeFeaturePage * 3 + 3)
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setHasLoaded(true))
+    return () => window.cancelAnimationFrame(frame)
+  }, [])
 
   useEffect(() => {
     if (previousSlideRef.current === activeSlide) return undefined
@@ -382,7 +388,7 @@ function App() {
 
   return (
     <div
-      className={`site-shell${hasScrolled ? ' has-scrolled' : ''}`}
+      className={`site-shell${hasScrolled ? ' has-scrolled' : ''}${hasLoaded ? ' has-loaded' : ''}`}
       onClickCapture={(event) => {
         if (event.target instanceof Element && event.target.closest('a[href^="#"]:not([href="#home"])')) {
           setHasScrolled(true)
@@ -709,7 +715,6 @@ function App() {
                 title="Good things on the calendar."
                 copy="Open mornings, school celebrations and the little moments that bring us together."
                 animateOnScroll
-                hasScrolled={hasScrolled}
                 hasScrolled={hasScrolled}
               />
               <a className="underlined-link section-side-link" href="#contact">All school news <ArrowRight size={16} /></a>
