@@ -260,6 +260,10 @@ function TypewriterTitle({ text, isVisible }) {
 
 function App() {
   const [activeSlide, setActiveSlide] = useState(0)
+  const [outgoingSlide, setOutgoingSlide] = useState(null)
+  const [isImageFading, setIsImageFading] = useState(false)
+  const [isSlideChanging, setIsSlideChanging] = useState(false)
+  const previousSlideRef = useRef(activeSlide)
   const [activeFeaturePage, setActiveFeaturePage] = useState(0)
   const [featureDirection, setFeatureDirection] = useState('next')
   const [marqueePaused, setMarqueePaused] = useState(false)
@@ -269,6 +273,28 @@ function App() {
   const slide = slides[activeSlide]
   const featurePageCount = Math.ceil(features.length / 3)
   const visibleFeatures = features.slice(activeFeaturePage * 3, activeFeaturePage * 3 + 3)
+
+  useEffect(() => {
+    if (previousSlideRef.current === activeSlide) return undefined
+
+    const previousSlide = previousSlideRef.current
+    previousSlideRef.current = activeSlide
+    setOutgoingSlide(previousSlide)
+    setIsImageFading(false)
+    setIsSlideChanging(true)
+
+    const frame = window.requestAnimationFrame(() => setIsImageFading(true))
+    const timer = window.setTimeout(() => {
+      setOutgoingSlide(null)
+      setIsImageFading(false)
+      setIsSlideChanging(false)
+    }, 1600)
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.clearTimeout(timer)
+    }
+  }, [activeSlide])
 
   useEffect(() => {
     const sectionIds = ['home', 'about', 'academics', 'campuses', 'news', 'contact']
@@ -350,7 +376,7 @@ function App() {
 
     const timer = window.setInterval(() => {
       setActiveSlide((current) => (current + 1) % slides.length)
-    }, 5000)
+    }, 6500)
 
     return () => window.clearInterval(timer)
   }, [hasScrolled])
@@ -401,12 +427,17 @@ function App() {
 
       <main>
         <section className="hero" id="home">
-          <div className="hero-image" key={slide.image}>
+          <div className="hero-image">
             <img src={slide.image} alt={slide.imageAlt} fetchPriority="high" />
           </div>
+          {outgoingSlide !== null && (
+            <div className={`hero-image hero-image--outgoing${isImageFading ? ' is-fading' : ''}`} aria-hidden="true">
+              <img src={slides[outgoingSlide].image} alt="" />
+            </div>
+          )}
           <div className="hero-shade" />
           <div className="container hero-content">
-            <div className="hero-copy" key={activeSlide}>
+            <div className={`hero-copy${isSlideChanging ? ' hero-copy--changing' : ''}`} key={activeSlide}>
               <span className="hero-eyebrow"><span /> {slide.eyebrow}</span>
               <h1>{slide.title}</h1>
               <p>{slide.description}</p>
